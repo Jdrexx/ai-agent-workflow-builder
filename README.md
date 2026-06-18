@@ -1,5 +1,7 @@
 # AI Agent Workflow Builder
 
+![Python](https://img.shields.io/badge/Python-3.11+-blue?style=flat-square&logo=python) ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi) ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite) ![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=flat-square&logo=pydantic) ![Workflows](https://img.shields.io/badge/Workflows-2088FF?style=flat-square&logo=github-actions)
+
 Define multi-step AI workflows with connected tools, run them locally, and inspect the logs.
 
 ## Features
