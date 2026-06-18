@@ -4,6 +4,8 @@
 
 Define multi-step AI workflows with connected tools, run them locally, and inspect the logs.
 
+![workflow-builder-demo](screenshots/workflow-builder-demo.png)
+
 ## Features
 - Define multi-step workflow YAML
 - Connect tools: search, parse, summarize, export
