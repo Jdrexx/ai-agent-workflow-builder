@@ -1,9 +1,9 @@
 from __future__ import annotations
-import json, sqlite3
+import json, re, sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
@@ -16,9 +16,7 @@ def db() -> sqlite3.Connection:
     conn=sqlite3.connect(DB_FILE); conn.row_factory=sqlite3.Row; conn.execute('pragma journal_mode=wal'); return conn
 def init_db() -> None:
     with db() as conn: conn.execute('create table if not exists records (id integer primary key autoincrement, kind text not null, title text not null, payload text not null, created_at text not null)')
-@app.on_event("startup")
-def on_startup() -> None:
-    init_db()
+init_db()
 def save_record(kind: str, title: str, payload: str) -> int:
     with db() as conn:
         cur=conn.execute('insert into records(kind,title,payload,created_at) values (?,?,?,?)',(kind,title,payload,datetime.now(timezone.utc).isoformat())); return int(cur.lastrowid)
@@ -44,7 +42,8 @@ class Workflow(BaseModel):
 BUILTIN_TOOLS = {"search": lambda p: f"Searched: {p.get('query','n/a')} -> returned results", "parse": lambda p: f"Parsed content of length {p.get('length',0)}", "summarize": lambda p: f"Summarized text with target length {p.get('target_length','brief')}", "export": lambda p: f"Exported to {p.get('format','csv')}"}
 @app.post('/api/workflows')
 def create_workflow(wf: Workflow):
-    path = WORKFLOWS_DIR / f"{wf.name.replace(' ','_').lower()}.json"
+    safe_name = re.sub(r'[^a-z0-9_-]', '', wf.name.replace(' ','_').lower()) or 'workflow'
+    path = WORKFLOWS_DIR / f"{safe_name}.json"
     payload = wf.model_dump()
     path.write_text(json.dumps(payload))
     save_record('workflow', wf.name, json.dumps(payload))
@@ -55,7 +54,7 @@ def list_workflows():
 @app.post('/api/workflows/{name}/run')
 def run_workflow(name: str):
     items = [r for r in rows('workflow') if json.loads(r['payload']).get('name') == name]
-    if not items: return {"error": f"Workflow '{name}' not found"}, 404
+    if not items: raise HTTPException(status_code=404, detail=f"Workflow '{name}' not found")
     wf = json.loads(items[0]['payload'])
     logs = []
     for step in wf['steps']:
