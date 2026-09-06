@@ -26,11 +26,11 @@ Open: http://localhost:8109
 
 ## API
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/` | Browser demo UI |
-| GET | `/api/health` | Health check |
-| GET | `/docs` | Interactive API docs |
+| Method | Path          | Description          |
+| ------ | ------------- | -------------------- |
+| GET    | `/`           | Browser demo UI      |
+| GET    | `/api/health` | Health check         |
+| GET    | `/docs`       | Interactive API docs |
 
 ## Tests
 
